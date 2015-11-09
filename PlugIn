@@ -1,0 +1,110 @@
+//=============================================================================
+// ShowCurrentCharacter.js
+//=============================================================================
+
+/*:
+ * @plugindesc Change the Face, if Switch XY is true.
+ * @author Alanshor
+ *
+ * @help Change the Face, if Switch XY is true on a Message.
+ * You dont need a other PlugIn.
+ * Are more then 1 on, the Face with the lowest Value(1, 2 or 3) will be showed!
+ * Write the Name of the Picture without ".png"!
+ *
+ * @param Gesicht_Name_old
+ * @desc Name of the Face, who you want to change.
+ * @default facesEmpty
+ *
+ * @param Charakter_Name_old
+ * @desc Name of the Character, who you want to change.
+ * @param --------------------------------------------- 
+ * @param Gesicht_Name_new1
+ * @desc Name of Face 1.
+ *
+ * @param Charakter_Name_new1
+ * @desc Name of Character 1.
+ *
+ * @param Switch_Face1
+ * @desc Number from Switches, who need to be on to show Face 1/Character 1!
+ * @param --------------------------------------------- 
+ * @param Gesicht_Name_new2
+ * @desc Name of Face 2.
+ *
+ * @param Charakter_Name_new2
+ * @desc Name of Character 2.
+ *
+ * @param Switch_Face2
+ * @desc Number from Switches, who need to be on to show Face 2/Character 2!
+ * @param --------------------------------------------- 
+ * @param Gesicht_Name_new3
+ * @desc Name of Face 3.
+ *
+ * @param Charakter_Name_new3
+ * @desc Name of Character 3.
+ *
+ * @param Switch_Face3
+ * @desc SNumber from Switches, who need to be on to show Face 3/Character 3!
+ */
+
+(function() {
+
+  var parameters = PluginManager.parameters('ShowCurrentCharacter');
+    var _faceName = String(parameters['Gesicht_Name_old']) || "facesEmpty";
+    var _WalkName = String(parameters['Charakter_Name_old']);
+    var NewFaceName1 = String(parameters['Gesicht_Name_new1']);
+    var NewFaceName2 = String(parameters['Gesicht_Name_new2']);
+    var NewFaceName3 = String(parameters['Gesicht_Name_new3']);
+    var NewWalkName1 = String(parameters['Charakter_Name_new1']);
+    var NewWalkName2 = String(parameters['Charakter_Name_new2']);
+    var NewWalkName3 = String(parameters['Charakter_Name_new3']);
+    var Switch1 = Number(parameters['Switch_Face1']) || "0";
+    var Switch2 = Number(parameters['Switch_Face2']) || "0";
+    var Switch3 = Number(parameters['Switch_Face3']) || "0";
+
+ Window_Base.prototype.drawFace = function(faceName, faceIndex, x, y, width, height) {
+    width = width || Window_Base._faceWidth;
+    height = height || Window_Base._faceHeight;
+    if(faceName == _faceName){
+      if($gameSwitches.value(Switch1)){
+        faceName = NewFaceName1;
+      }else if($gameSwitches.value(Switch2)){
+        faceName = NewFaceName2;
+       }else if($gameSwitches.value(Switch3)){
+                  faceName = NewFaceName3;
+       }
+    }
+    var bitmap = ImageManager.loadFace(faceName);
+    var pw = Window_Base._faceWidth;
+    var ph = Window_Base._faceHeight;
+    var sw = Math.min(width, pw);
+    var sh = Math.min(height, ph);
+    var dx = Math.floor(x + Math.max(width - pw, 0) / 2);
+    var dy = Math.floor(y + Math.max(height - ph, 0) / 2);
+    var sx = faceIndex % 4 * pw + (pw - sw) / 2;
+    var sy = Math.floor(faceIndex / 4) * ph + (ph - sh) / 2;
+    this.contents.blt(bitmap, sx, sy, sw, sh, dx, dy);
+};
+
+Window_Base.prototype.drawCharacter = function(characterName, characterIndex, x, y) {
+    if(characterName == _WalkName){
+      if($gameSwitches.value(Switch1)){
+        characterName = NewWalkName1;
+      }
+      if($gameSwitches.value(Switch2)){
+        characterName = NewWalkName2;
+      }
+      if($gameSwitches.value(Switch3)){
+        characterName = NewWalkName3;
+      }
+    }
+    var bitmap = ImageManager.loadCharacter(characterName);
+    var big = ImageManager.isBigCharacter(characterName);
+    var pw = bitmap.width / (big ? 3 : 12);
+    var ph = bitmap.height / (big ? 4 : 8);
+    var n = characterIndex;
+    var sx = (n % 4 * 3 + 1) * pw;
+    var sy = (Math.floor(n / 4) * 4) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x - pw / 2, y - ph);
+};
+  
+})();
